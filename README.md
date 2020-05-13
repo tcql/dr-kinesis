@@ -26,6 +26,7 @@ npm start
 
 Currently there are some crucial assumptions that Dr. Kinesis works with:
 
+- Remote Firehose doesn't recurse through ListObjects to find all child data files. It just does one single call to ListObjects, currently. This means you could miss some data, but honestly Dr. Kinesis is more meant for a snapshot of data than paging through an entire dataset.
 - "Local" firehose data is a single file, already unzipped
 - The fundamental data you're working with is JSON
 - Data at the top level is JSON-wrapped base64-encoded gzip, like so:
