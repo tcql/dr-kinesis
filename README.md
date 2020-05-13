@@ -13,6 +13,8 @@ Decode & Filter records from:
 - Locally copied Firehose data files
 - Kinesis streams (TBD)
 
+![](https://github.com/tcql/dr-kinesis/blob/assets/example.svg)
+
 ## usage
 
 ```sh
@@ -32,16 +34,16 @@ dr-kinesis
 
 ### filtering
 
-Dr. Kinesis assumes your data is JSON, so filters are applied as JSON. A filter is a strict match of properties from the filter to the event. For example, if you have a filter like: 
+Dr. Kinesis assumes your data is JSON, so filters are applied as JSON. A filter is a strict match of properties from the filter to the event. For example, if you have a filter like:
 
 ```json
 {"name": "bill", "age": 57}
 ```
 
-And records like: 
+And records like:
 
 ```json
-{"name": "bill", "age": 100, "favorite_color": "blue"} 
+{"name": "bill", "age": 100, "favorite_color": "blue"}
 {"name": "bill", "age": 57, "favorite_color": "green"}
 {"name": "joe", "age": 57, "favorite_color": "yellow"}
 ```
