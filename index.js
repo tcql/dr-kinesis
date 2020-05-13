@@ -9,7 +9,7 @@ async function main() {
     initial: 2,
     choices: [
       { title: 'A Kinesis Stream', value: 'kinesis', disabled: true},
-      { title: 'A Kinesis Firehose on S3', value: 'firehose', disabled: true },
+      { title: 'A Kinesis Firehose on S3', value: 'firehose', disabled: false },
       { title: 'A locally downloaded Firehose data file', value: 'local_firehose'},
     ]
   })

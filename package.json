@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -12,6 +13,7 @@
     "aws-sdk": "^2.675.0",
     "binary-split": "^1.0.5",
     "prompts": "^2.3.2",
+    "stream-array": "^1.1.2",
     "through2": "^3.0.1"
   }
 }

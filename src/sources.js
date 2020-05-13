@@ -1,5 +1,4 @@
-const LocalFirehose = require('./sources/LocalFirehose')
-
 module.exports = {
-  'local_firehose': LocalFirehose
+  'local_firehose': require('./sources/LocalFirehose'),
+  'firehose': require('./sources/KinesisFirehose'),
 }

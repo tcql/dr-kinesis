@@ -10,7 +10,8 @@ const split = require('binary-split')
 //  - can we support reading out of a folder instead of a single file?
 //  - can we make filter creation interactive / more powerful?
 //  - handle non-gzipped events (rare for us, but possible)
-
+//  - make a base class
+//  - the code in `start` can be generalized if we treat all sources as streams
 
 function unzipLine(line, encoding, next) {
   let data = JSON.parse(line).data
@@ -43,7 +44,6 @@ class LocalFirehose {
   }
 
   async start() {
-    console.log("starting")
     let count = 0
     let matchedCount = 0
     const stream = createStream(path.resolve(this.input.location))
@@ -57,7 +57,7 @@ class LocalFirehose {
       }
 
       if (count % this.batchSize === 0) {
-        console.log('Found', matchedCount, 'matching out of', count, 'records so far')
+        console.log('Found', matchedCount, 'matching records out of', count, 'records so far')
         stream.pause()
         const response = await prompts({
           type: 'confirm',
@@ -71,6 +71,9 @@ class LocalFirehose {
           this.end()
         }
       }
+    })
+    stream.on('end', () => {
+      console.log('Reached end of stream. Displayed', matchedCount, 'matching records of', count, 'total records')
     })
     stream.resume()
   }
@@ -114,10 +117,7 @@ class LocalFirehose {
         message: 'Ready to begin streaming?'
       }
     ]
-    // prompts.inject(['./api-events-sample', true, '{"event": "visit"}', true])
     this.input = await prompts(questions)
-    // prompts.inject([])
-    console.log(this.input)
   }
 }
 
