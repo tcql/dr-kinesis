@@ -5,6 +5,13 @@ const prompts = require('prompts')
 const through2 = require('through2')
 const split = require('binary-split')
 
+// TODO:
+//  - clean up all these floaty functions. lots of them are probably generally useful, not just here
+//  - can we support reading out of a folder instead of a single file?
+//  - can we make filter creation interactive / more powerful?
+//  - handle non-gzipped events (rare for us, but possible)
+
+
 function unzipLine(line, encoding, next) {
   let data = JSON.parse(line).data
   let gz = zlib.gunzipSync(Buffer.from(data, 'base64'))
