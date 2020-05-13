@@ -26,6 +26,7 @@ npm start
 
 Currently there are some crucial assumptions that Dr. Kinesis works with:
 
+- "Local" firehose data is a single file, already unzipped
 - The fundamental data you're working with is JSON
 - Data at the top level is JSON-wrapped base64-encoded gzip, like so:
 ```json
