@@ -1,5 +1,5 @@
 
-⚠️ Dr. Kinesis is super experimental right now! ⚠️
+⚠️ **Dr. Kinesis is super experimental right now!** ⚠️
 
 It'll be really easy to hurt yourself or get hurt (okay so the "Dr." part isn't 100% official yet).
 
@@ -21,6 +21,26 @@ cd dr-kinesis
 npm ci
 npm start
 ```
+
+### filtering
+
+Dr. Kinesis assumes your data is JSON, so filters are applied as JSON. A filter is a strict match of properties from the filter to the event. For example, if you have a filter like: 
+
+```json
+{"name": "bill", "age": 57}
+```
+
+And records like: 
+
+```json
+{"name": "bill", "age": 100, "favorite_color": "blue"} 
+{"name": "bill", "age": 57, "favorite_color": "green"}
+{"name": "joe", "age": 57, "favorite_color": "yellow"}
+```
+
+The filter would only match record #2 because it's the only one that has both a matching name and a matching age
+
+
 
 ## notes
 
