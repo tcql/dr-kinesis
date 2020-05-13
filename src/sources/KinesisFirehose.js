@@ -4,6 +4,7 @@ const streamArray = require('stream-array')
 const zlib = require('zlib')
 const through2 = require('through2')
 const split = require('binary-split')
+const BaseSource = require('./BaseSource')
 
 
 function downloadFile(s3) {
@@ -43,11 +44,7 @@ function createStream(s3, s3files) {
     .pause()
 }
 
-class KinesisFirehose {
-  constructor() {
-    this.batchSize = 100
-  }
-
+class KinesisFirehose extends BaseSource{
   async gatherInput() {
     const questions = [
       // TODO: make this a select list of regions
@@ -101,9 +98,6 @@ class KinesisFirehose {
   }
 
   async start() {
-    let count = 0
-    let matchedCount = 0
-
     this.S3 = new AWS.S3({region: this.input.region})
     const {bucket, prefix} = this.splitS3Path(this.input.location)
 
@@ -113,34 +107,7 @@ class KinesisFirehose {
     this._s3Files = response.Contents.map(r => ({Bucket: bucket, Key: r.Key}))
 
     const stream = createStream(this.S3, this._s3Files)
-    stream.on('data', async ev => {
-      count++
-
-      if (matchEvent(ev, this.input.filter)) {
-        matchedCount++
-        console.log(ev)
-      }
-
-      if (count % this.batchSize === 0) {
-        console.log('Found', matchedCount, 'matching records out of', count, 'records so far')
-        stream.pause()
-        const response = await prompts({
-          type: 'confirm',
-          name: 'continue',
-          message: 'Scan more?',
-          initial: true
-        })
-        if (response.continue) {
-          stream.resume()
-        } else {
-          this.end()
-        }
-      }
-    })
-    stream.on('end', () => {
-      console.log('Reached end of stream. Displayed', matchedCount, 'matching records of', count, 'total records')
-    })
-    stream.resume()
+    this.readStream(stream, this.input.filter)
   }
 }
 

@@ -4,14 +4,13 @@ const zlib = require('zlib')
 const prompts = require('prompts')
 const through2 = require('through2')
 const split = require('binary-split')
+const BaseSource = require('./BaseSource')
 
 // TODO:
 //  - clean up all these floaty functions. lots of them are probably generally useful, not just here
 //  - can we support reading out of a folder instead of a single file?
 //  - can we make filter creation interactive / more powerful?
 //  - handle non-gzipped events (rare for us, but possible)
-//  - make a base class
-//  - the code in `start` can be generalized if we treat all sources as streams
 
 function unzipLine(line, encoding, next) {
   let data = JSON.parse(line).data
@@ -25,11 +24,6 @@ function eventStringToJson(line, encoding, next) {
   next()
 }
 
-function matchEvent(event, filter) {
-  if (!filter) return true
-  return Object.keys(filter).reduce((acc, f) => acc && event[f] == filter[f], true)
-}
-
 function createStream(location) {
   return fs.createReadStream(location, 'utf-8')
     .pipe(split())
@@ -38,49 +32,16 @@ function createStream(location) {
     .pause()
 }
 
-class LocalFirehose {
-  constructor() {
-    this.batchSize = 100
-  }
+class LocalFirehose extends BaseSource {
 
   async start() {
     let count = 0
     let matchedCount = 0
     const stream = createStream(path.resolve(this.input.location))
-    this.stream = stream
-    stream.on('data', async ev => {
-      count++
 
-      if (matchEvent(ev, this.input.filter)) {
-        matchedCount++
-        console.log(ev)
-      }
-
-      if (count % this.batchSize === 0) {
-        console.log('Found', matchedCount, 'matching records out of', count, 'records so far')
-        stream.pause()
-        const response = await prompts({
-          type: 'confirm',
-          name: 'continue',
-          message: 'Scan more?',
-          initial: true
-        })
-        if (response.continue) {
-          stream.resume()
-        } else {
-          this.end()
-        }
-      }
-    })
-    stream.on('end', () => {
-      console.log('Reached end of stream. Displayed', matchedCount, 'matching records of', count, 'total records')
-    })
-    stream.resume()
+    this.readStream(stream, this.input.filter)
   }
 
-  end() {
-    this.stream.end()
-  }
 
   async gatherInput() {
     const questions = [
