@@ -22,6 +22,14 @@ npm ci
 npm start
 ```
 
+Or, maybe install globally and reach Dr. Kinesis from anywhere (the doctor does house calls!)
+
+```sh
+npm install -g
+dr-kinesis
+```
+
+
 ### filtering
 
 Dr. Kinesis assumes your data is JSON, so filters are applied as JSON. A filter is a strict match of properties from the filter to the event. For example, if you have a filter like: 
