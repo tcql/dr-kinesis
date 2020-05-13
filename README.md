@@ -13,7 +13,7 @@ Decode & Filter records from:
 - Locally copied Firehose data files
 - Kinesis streams (TBD)
 
-![](https://github.com/tcql/dr-kinesis/blob/assets/example.svg)
+![](https://github.com/tcql/dr-kinesis/blob/example/assets/example.svg)
 
 ## usage
 
