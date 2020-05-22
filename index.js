@@ -3,6 +3,8 @@
 const prompts = require('prompts')
 const sources = require('./src/sources.js')
 
+prompts.override(require('yargs').argv)
+
 async function main() {
   const {source} = await prompts({
     type: 'select',

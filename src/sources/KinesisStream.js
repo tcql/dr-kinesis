@@ -45,7 +45,13 @@ class KinesisStream extends BaseSource {
         type: prev => prev === "AT_TIMESTAMP" ? "date" : null,
         name: 'timestamp',
         message: 'What timestamp do you want to start from?',
-        validate: date => date > Date.now() ? 'Not in the future' : true
+        validate: date => {
+          if (!(date instanceof Date)) {
+            date = Date.parse(date)
+          }
+          if (!date || Number.isNaN(date)) return false
+          return true //date > Date.now() ? 'Not in the future' : true
+        }
       },
       // TODO: these are copy/paste from the LocalFirehose class. generalize
       {

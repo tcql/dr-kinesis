@@ -67,7 +67,7 @@ class LocalFirehose extends BaseSource {
     await this.ask(questions)
   }
 
-  createStream(location) {
+  createStream() {
     const location = path.resolve(this.input.location)
     return fs.createReadStream(this.input.location, 'utf-8')
       .pipe(split())

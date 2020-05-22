@@ -23,7 +23,6 @@ class BaseSource {
 
   validInput(inp = null) {
     if (!inp) inp = this.input
-    console.log('validating input:', inp)
     if (Object.keys(inp).length === 0) {
       return false
     }
