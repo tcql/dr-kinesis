@@ -56,9 +56,10 @@ The filter would only match record #2 because it's the only one that has both a 
 
 Currently there are some known issues / incomplete implementations:
 
-- Remote Firehose doesn't recurse through ListObjects to find all child data files. It just does one single call to ListObjects, currently. This means you could miss some data, but honestly Dr. Kinesis is more meant for a snapshot of data than paging through an entire dataset.
+- Remote Firehose doesn't recurse through ListObjects to find all child data files. It just does one single call to ListObjects, currently. This means you could miss some data, but honestly Dr. Kinesis is more meant for a snapshot of data than paging through an entire dataset
 - Remote Firehose data is assumed to be gzipped
-- Kinesis Streams can't use AT_SEQUENCE_NUMBER or similar iterators. This might not be changed in the future.
+- Kinesis Streams can't use AT_SEQUENCE_NUMBER or similar iterators. This might not be changed in the future
+- filters are pretty basic. It would be nice to provide some regex support, case insensitivity, and perhaps allow for multiple filter types
 - "Local" firehose data is a single file, previously unzipped
 - (partially addressed) The fundamental data you're working with is JSON
 - (partially addressed) Data at the top level is JSON-wrapped base64-encoded gzip, like so:
