@@ -9,9 +9,9 @@ Dr. Kinesis is here to cure what ails ya... why, I mean data obscurity, of cours
 
 Decode & Filter records from:
 
+- Kinesis streams
 - Kinesis Firehose
 - Locally copied Firehose data files
-- Kinesis streams (TBD)
 
 ![](https://github.com/tcql/dr-kinesis/blob/master/assets/example.svg)
 
