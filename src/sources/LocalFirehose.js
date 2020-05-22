@@ -24,24 +24,9 @@ function eventStringToJson(line, encoding, next) {
   next()
 }
 
-function createStream(location) {
-  return fs.createReadStream(location, 'utf-8')
-    .pipe(split())
-    .pipe(through2.obj(unzipLine))
-    .pipe(through2.obj(eventStringToJson))
-    .pause()
-}
+
 
 class LocalFirehose extends BaseSource {
-
-  async start() {
-    let count = 0
-    let matchedCount = 0
-    const stream = createStream(path.resolve(this.input.location))
-
-    this.readStream(stream, this.input.filter)
-  }
-
 
   async gatherInput() {
     const questions = [
@@ -78,7 +63,17 @@ class LocalFirehose extends BaseSource {
         message: 'Ready to begin streaming?'
       }
     ]
-    this.input = await prompts(questions)
+
+    await this.ask(questions)
+  }
+
+  createStream(location) {
+    const location = path.resolve(this.input.location)
+    return fs.createReadStream(this.input.location, 'utf-8')
+      .pipe(split())
+      .pipe(this.unzipLine())
+      .pipe(this.eventStringToJson())
+      .pause()
   }
 }
 

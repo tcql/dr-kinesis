@@ -33,17 +33,6 @@ function matchEvent(event, filter) {
   return Object.keys(filter).reduce((acc, f) => acc && event[f] == filter[f], true)
 }
 
-
-function createStream(s3, s3files) {
-  return streamArray(s3files)
-    .pipe(through2.obj(downloadFile(s3)))
-    .pipe(zlib.createGunzip())
-    .pipe(split())
-    .pipe(through2.obj(unzipLine))
-    .pipe(through2.obj(eventStringToJson))
-    .pause()
-}
-
 class KinesisFirehose extends BaseSource{
   async gatherInput() {
     const questions = [
@@ -87,7 +76,7 @@ class KinesisFirehose extends BaseSource{
       }
     ]
 
-    this.input = await prompts(questions)
+    await this.ask(questions)
   }
 
   splitS3Path(s3path) {
@@ -104,10 +93,19 @@ class KinesisFirehose extends BaseSource{
     // TODO: validate that we've sufficiently filtered down the firehose path to only include a given day/hour instead of just pointing at the entire firehose
     // Also, allow recursively listing so we can find all the files in the supplied path instead of just a few
     const response = await this.S3.listObjectsV2({Bucket: bucket, Prefix: prefix}).promise()
-    this._s3Files = response.Contents.map(r => ({Bucket: bucket, Key: r.Key}))
+    this._s3_files = response.Contents.map(r => ({Bucket: bucket, Key: r.Key}))
 
-    const stream = createStream(this.S3, this._s3Files)
-    this.readStream(stream, this.input.filter)
+    await super.start()
+  }
+
+  createStream() {
+    return streamArray(this._s3_files)
+      .pipe(through2.obj(downloadFile(this.S3)))
+      .pipe(zlib.createGunzip())
+      .pipe(split())
+      .pipe(this.unzipLine())
+      .pipe(this.eventStringToJson())
+      .pause()
   }
 }
 
