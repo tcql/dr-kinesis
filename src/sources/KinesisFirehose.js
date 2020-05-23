@@ -48,32 +48,6 @@ class KinesisFirehose extends BaseSource{
         name: 'location',
         message: 'Where on S3 is the Firehose?'
       },
-      // TODO: these are copy/paste from the LocalFirehose class. generalize
-      {
-        type: 'confirm',
-        name: 'want_filter',
-        message: 'Do you want to filter the data?'
-      },
-      {
-        type: prev => prev ? 'text' : null,
-        name: 'filter',
-        message: 'Enter a JSON filter. Events will be discarded unless they contain the properties and values in the filter',
-        validate: value => {
-          try {
-            JSON.parse(value)
-            return true
-          } catch (e) {
-            return "Filter must be valid json"
-          }
-        },
-        format: value => JSON.parse(value)
-      },
-      {
-        type: 'confirm',
-        name: 'ready',
-        initial: true,
-        message: 'Ready to begin streaming?'
-      }
     ]
 
     await this.ask(questions)
