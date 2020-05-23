@@ -15,7 +15,7 @@
   "dependencies": {
     "aws-sdk": "^2.675.0",
     "binary-split": "^1.0.5",
-    "jexl": "^2.2.2",
+    "jq-web": "^0.5.1",
     "kinesis-readable": "^1.2.0",
     "prompts": "^2.3.2",
     "stream-array": "^1.1.2",
