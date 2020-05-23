@@ -2,9 +2,13 @@ const prompts = require('prompts')
 const through2 = require('through2')
 const zlib = require('zlib')
 
+// TODO:
+//  - make filter creation interactive / more powerful
+
 class BaseSource {
-  constructor() {
-    this.batchSize = 100
+  constructor(batchSize=100, toStdout=false) {
+    this.batchSize = batchSize || 100
+    this.toStdout = toStdout
   }
 
 
@@ -101,34 +105,41 @@ class BaseSource {
   }
 
 
+  async handleBatching(stream, count, matchedCount) {
+    if (this.batchSize && (count % this.batchSize === 0)) {
+      console.log('Found', matchedCount, 'matching records out of', count, 'records so far')
+      stream.pause()
+      const response = await prompts({
+        type: 'confirm',
+        name: 'continue',
+        message: 'Scan more?',
+        initial: true
+      }, { onCancel: this.onPromptCancel })
+      if (response.continue) {
+        stream.resume()
+      } else {
+        this.end()
+      }
+    }
+  }
+
+
   async readStream(stream, filter) {
     let count = 0
     let matchedCount = 0
 
     this.stream = stream
+    // todo use a pipe instead of event?
     stream.on('data', async ev => {
       count++
 
       if (this.matchFilter(ev, filter)) {
         matchedCount++
+        // todo, write to stdout
         console.log(ev)
       }
 
-      if (count % this.batchSize === 0) {
-        console.log('Found', matchedCount, 'matching records out of', count, 'records so far')
-        stream.pause()
-        const response = await prompts({
-          type: 'confirm',
-          name: 'continue',
-          message: 'Scan more?',
-          initial: true
-        }, { onCancel: this.onPromptCancel })
-        if (response.continue) {
-          stream.resume()
-        } else {
-          this.end()
-        }
-      }
+      await this.handleBatching(stream, count, matchedCount)
     })
     stream.on('end', () => {
       console.log('Reached end of stream. Displayed', matchedCount, 'matching records of', count, 'total records')

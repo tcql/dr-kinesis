@@ -1,8 +1,5 @@
 const fs = require('fs')
 const path = require('path')
-const zlib = require('zlib')
-const prompts = require('prompts')
-const through2 = require('through2')
 const split = require('binary-split')
 const BaseSource = require('./BaseSource')
 

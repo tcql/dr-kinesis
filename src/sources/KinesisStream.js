@@ -1,7 +1,4 @@
 const AWS = require('aws-sdk')
-const prompts = require('prompts')
-const streamArray = require('stream-array')
-const zlib = require('zlib')
 const through2 = require('through2')
 const readable = require('kinesis-readable')
 const BaseSource = require('./BaseSource')
@@ -59,13 +56,14 @@ class KinesisStream extends BaseSource {
 
   createStream() {
     let input = this.input
+
     const client = new AWS.Kinesis({
       region: input.region,
       params: { StreamName: input.stream_name }
     })
-    const params = {
-      limit: 100 // TODO: configure
-    }
+
+    const params = { limit: this.batchSize }
+
     if (input.iterator_type === "AT_TIMESTAMP") {
       params.timestamp = input.timestamp.toISOString()
     } else {
@@ -82,9 +80,9 @@ class KinesisStream extends BaseSource {
 
 
   end() {
-    // kinesis readable wants its own close
+    // kinesis readable needs an explicit `close`
     this._readable.close()
-    this.stream.end()
+    super.end()
   }
 }
 

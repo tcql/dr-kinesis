@@ -1,5 +1,4 @@
 const AWS = require('aws-sdk')
-const prompts = require('prompts')
 const streamArray = require('stream-array')
 const zlib = require('zlib')
 const through2 = require('through2')
