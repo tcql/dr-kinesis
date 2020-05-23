@@ -1,5 +1,5 @@
 const AWS = require('aws-sdk')
-const streamArray = require('stream-array')
+const fromArray = require('from2-array')
 const zlib = require('zlib')
 const through2 = require('through2')
 const split = require('binary-split')
@@ -57,7 +57,7 @@ class KinesisFirehose extends BaseSource{
 
 
   createStream() {
-    return streamArray(this._s3_files)
+    return fromArray.obj(this._s3_files)
       .pipe(through2.obj(downloadFile(this.S3)))
       .pipe(zlib.createGunzip())
       .pipe(split())

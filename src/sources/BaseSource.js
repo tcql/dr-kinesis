@@ -6,8 +6,9 @@ const zlib = require('zlib')
 //  - make filter creation interactive / more powerful
 
 class BaseSource {
-  constructor(batchSize=100, toStdout=false) {
-    this.batchSize = batchSize || 100
+  constructor(batchSize=100, toStdout=false, limit=null) {
+    this.batchSize = Math.max(0, batchSize) || 100
+    this.limit = Math.max(0, limit)
     this.toStdout = toStdout
   }
 
@@ -106,44 +107,62 @@ class BaseSource {
 
 
   async handleBatching(stream, count, matchedCount) {
-    if (this.batchSize && (count % this.batchSize === 0)) {
+    if (!this.batchSize || this.toStdout) return true
+
+    if (count % this.batchSize === 0) {
       console.log('Found', matchedCount, 'matching records out of', count, 'records so far')
+
       stream.pause()
+
       const response = await prompts({
         type: 'confirm',
         name: 'continue',
         message: 'Scan more?',
         initial: true
       }, { onCancel: this.onPromptCancel })
+
       if (response.continue) {
         stream.resume()
+        return true
       } else {
-        this.end()
+        stream.destroy()
+        return false
       }
     }
+    return true
   }
 
 
-  async readStream(stream, filter) {
+  async readStream(output_stream, filter) {
     let count = 0
     let matchedCount = 0
+    let stream = output_stream
+      .pipe(through2.obj(async (ev, enc, next) => {
+        count++
+
+        if (this.matchFilter(ev, filter)) {
+          matchedCount++
+          // todo, write to stdout
+          console.log(ev)
+        }
+
+        if (this.limit && count === this.limit) {
+          console.log('Aborting; eached configured limit of', this.limit)
+          stream.destroy()
+          return false
+        }
+
+        let cont = await this.handleBatching(stream, count, matchedCount)
+        if (cont) next()
+      }))
+      .on('close', () => {
+        this.end()
+      })
+      .on('end', () => {
+        console.log('Reached end of stream. Displayed', matchedCount, 'matching records of', count, 'total records')
+      })
 
     this.stream = stream
-    // todo use a pipe instead of event?
-    stream.on('data', async ev => {
-      count++
-
-      if (this.matchFilter(ev, filter)) {
-        matchedCount++
-        // todo, write to stdout
-        console.log(ev)
-      }
-
-      await this.handleBatching(stream, count, matchedCount)
-    })
-    stream.on('end', () => {
-      console.log('Reached end of stream. Displayed', matchedCount, 'matching records of', count, 'total records')
-    })
     stream.resume()
   }
 

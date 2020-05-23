@@ -5,8 +5,6 @@ const BaseSource = require('./BaseSource')
 
 // TODO:
 //  - can we support reading out of a folder instead of a single file?
-//  - can we make filter creation interactive / more powerful?
-//  - handle non-gzipped events (rare for us, but possible)
 
 class LocalFirehose extends BaseSource {
   async gatherInput() {

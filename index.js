@@ -2,8 +2,27 @@
 
 const prompts = require('prompts')
 const sources = require('./src/sources.js')
+const yargs = require('yargs')
 
-prompts.override(require('yargs').argv)
+const argv = yargs
+  .option('l', {
+    alias: 'limit',
+    default: 0,
+    type: 'number'
+  })
+  .option('stdout', {
+    default: false,
+    type: 'boolean'
+  })
+  .option('b', {
+    alias: 'batch-size',
+    default: 100,
+    type: 'number'
+  })
+  .argv
+
+
+prompts.override(argv)
 
 async function main() {
   const {source} = await prompts({
@@ -24,7 +43,11 @@ async function main() {
   })
 
   const handlerClass = sources[source]
-  const handler = new handlerClass()
+  const handler = new handlerClass(
+    argv.batchSize,
+    argv.stdout,
+    argv.limit
+  )
 
   await handler.gatherInput()
   if (!handler.validInput()) {
