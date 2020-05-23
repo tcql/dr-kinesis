@@ -7,10 +7,12 @@ class BaseSource {
     this.batchSize = 100
   }
 
+
   onPromptCancel() {
     console.log('Aborted prompt')
     process.exit()
   }
+
 
   async ask(questions) {
     let post_questions = [
@@ -47,10 +49,12 @@ class BaseSource {
     )
   }
 
+
   matchFilter(event, filter) {
     if (!filter) return true
     return Object.keys(filter).reduce((acc, f) => acc && event[f] == filter[f], true)
   }
+
 
   validInput(inp = null) {
     if (!inp) inp = this.input
@@ -59,6 +63,7 @@ class BaseSource {
     }
     return true
   }
+
 
   unzipLine() {
     // can't be an arrow function because "this" is the through2
@@ -78,6 +83,7 @@ class BaseSource {
     })
   }
 
+
   eventStringToJson(line, encoding, next) {
     return through2.obj(function (line, encoding, next) {
       let events = line
@@ -93,6 +99,7 @@ class BaseSource {
       next()
     })
   }
+
 
   async readStream(stream, filter) {
     let count = 0
@@ -128,6 +135,7 @@ class BaseSource {
     })
     stream.resume()
   }
+
 
   async start() {
     const stream = this.createStream()

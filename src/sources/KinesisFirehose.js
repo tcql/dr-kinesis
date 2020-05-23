@@ -6,7 +6,6 @@ const through2 = require('through2')
 const split = require('binary-split')
 const BaseSource = require('./BaseSource')
 
-
 function downloadFile(s3) {
   return (file, enc, next) => {
     s3.getObject(file, (e, r) => {
@@ -14,23 +13,6 @@ function downloadFile(s3) {
       return next(null, r.Body)
     })
   }
-}
-
-function unzipLine(line, encoding, next) {
-  let data = JSON.parse(line).data
-  let gz = zlib.gunzipSync(Buffer.from(data, 'base64'))
-  next(null, gz)
-}
-
-function eventStringToJson(line, encoding, next) {
-  let events = JSON.parse(line)
-  events.forEach(e => this.push(e))
-  next()
-}
-
-function matchEvent(event, filter) {
-  if (!filter) return true
-  return Object.keys(filter).reduce((acc, f) => acc && event[f] == filter[f], true)
 }
 
 class KinesisFirehose extends BaseSource{
@@ -53,12 +35,14 @@ class KinesisFirehose extends BaseSource{
     await this.ask(questions)
   }
 
+
   splitS3Path(s3path) {
     let parts = s3path.replace('s3://', '').split('/')
     let bucket = parts[0]
     let prefix = parts.slice(1).join('/')
     return {bucket, prefix}
   }
+
 
   async start() {
     this.S3 = new AWS.S3({region: this.input.region})
@@ -71,6 +55,7 @@ class KinesisFirehose extends BaseSource{
 
     await super.start()
   }
+
 
   createStream() {
     return streamArray(this._s3_files)

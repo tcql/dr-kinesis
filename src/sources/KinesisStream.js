@@ -6,14 +6,12 @@ const through2 = require('through2')
 const readable = require('kinesis-readable')
 const BaseSource = require('./BaseSource')
 
-
 function splitRecords(chunk, enc, next) {
   chunk.forEach(rec => {
     this.push(rec.Data)
   })
   next()
 }
-
 
 class KinesisStream extends BaseSource {
   async gatherInput() {
@@ -58,6 +56,7 @@ class KinesisStream extends BaseSource {
     await this.ask(questions)
   }
 
+
   createStream() {
     let input = this.input
     const client = new AWS.Kinesis({
@@ -80,6 +79,7 @@ class KinesisStream extends BaseSource {
       .pipe(this.eventStringToJson())
       .pause()
   }
+
 
   end() {
     // kinesis readable wants its own close
