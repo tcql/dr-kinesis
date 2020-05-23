@@ -40,6 +40,12 @@ class KinesisStream extends BaseSource {
         type: prev => prev === "AT_TIMESTAMP" ? "date" : null,
         name: 'timestamp',
         message: 'What timestamp do you want to start from?',
+        format: date => {
+          if (!(date instanceof Date)) {
+            return Date.parse(date)
+          }
+          return date
+        },
         validate: date => {
           if (!(date instanceof Date)) {
             date = Date.parse(date)
