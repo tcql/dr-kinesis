@@ -16,6 +16,7 @@
     "aws-sdk": "^2.675.0",
     "binary-split": "^1.0.5",
     "from2-array": "0.0.4",
+    "glob": "^7.1.6",
     "kinesis-readable": "^1.2.0",
     "prompts": "^2.3.2",
     "through2": "^3.0.1",
