@@ -56,7 +56,7 @@ async function askWithDefaults(argv, questions, onCancel) {
   return Object.assign(argv, input)
 }
 
-function matchFilter (ev, filter) {
+function matchFilter (event, filter) {
   if (!filter) return true
   return Object.keys(filter).reduce((acc, f) => acc && event[f] == filter[f], true)
 }
