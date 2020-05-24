@@ -27,7 +27,7 @@ npm start
 Or, maybe install globally and reach Dr. Kinesis from anywhere (the doctor does house calls!)
 
 ```sh
-npm install -g
+npm link
 dr-kinesis
 ```
 
