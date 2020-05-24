@@ -5,10 +5,30 @@ const prompts = require('prompts')
 const options = require('./src/options')
 const yargs = require('yargs')
 
-const argv = yargs
+yargs
   .options(options.toCli(options.programOptions))
+  .command('*', 'The doctor is in', () => {}, async argv => {
+    console.log(argv)
+    const {source} = await prompts({
+      type: 'select',
+      name: 'source',
+      message: 'Where do you want to read data from?',
+      initial: 0,
+      choices: [
+        { title: 'A Kinesis Stream', value: 'kinesis', disabled: false},
+        { title: 'A Kinesis Firehose on S3', value: 'firehose', disabled: false },
+        { title: 'A locally downloaded Firehose data file', value: 'localfirehose'},
+      ]
+    }, {
+      onCancel: () => {
+        console.log('Aborting')
+        process.exit()
+      }
+    })
+    const cmd = require(`./src/commands/${source}`)
+    cmd.handler(argv)
+  })
   .commandDir('./src/commands')
-  .help()
   .argv
 
 
