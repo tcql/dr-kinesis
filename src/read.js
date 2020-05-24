@@ -15,6 +15,10 @@ function defaultOnCancel() {
 
 //todo use defaultOnCancel
 async function askWithDefaults(argv, questions, onCancel) {
+  if (!onCancel && onCancel !== false) {
+    onCancel = defaultOnCancel
+  }
+
   prompts.override(argv)
   let post_questions = [
     {
@@ -74,6 +78,7 @@ async function readStream(input, streamWrapper) {
 
     if (input.limit && count === input.limit) {
       console.error('Aborting; reached configured limit of', input.limit)
+      stream.destroy()
       ostream.destroy()
       return false
     }
@@ -87,6 +92,8 @@ async function readStream(input, streamWrapper) {
   .on('end', () => {
     console.error('Reached end of stream. Displayed', matchedCount, 'matching records of', count, 'total records')
   })
+
+  stream.resume()
 }
 
 

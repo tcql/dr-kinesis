@@ -28,6 +28,7 @@ const options = {
     cli: {
       type: 'string',
       alias: 'iterator',
+      choices: ['AT_TIMESTAMP', 'TRIM_HORIZON', 'LATEST'],
     },
     interactive: {
       type: 'select',
