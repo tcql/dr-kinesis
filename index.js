@@ -1,14 +1,30 @@
 #!/usr/bin/env node
 
 const prompts = require('prompts')
-// const sources = require('./src/sources.js')
 const options = require('./src/options')
 const yargs = require('yargs')
 
+const description = "Dr. Kinesis helps you read from AWS Kinesis Streams "
+  + "and Firehose Delivery Streams"
+
 yargs
-  .options(options.toCli(options.programOptions))
-  .command('*', 'The doctor is in', () => {}, async argv => {
-    console.log(argv)
+  .options({
+    limit: {
+      type: 'number',
+      default: 0,
+      alias: 'l',
+    },
+    batchSize: {
+      type: 'number',
+      default: 100,
+      alias: 'b',
+    },
+    stdout: {
+      type: 'boolean',
+      default: false,
+    },
+  })
+  .command('*', description, () => {}, async argv => {
     const {source} = await prompts({
       type: 'select',
       name: 'source',
@@ -29,49 +45,8 @@ yargs
     cmd.handler(argv)
   })
   .commandDir('./src/commands')
-  .argv
-
-
-// prompts.override(yargProgram.argv)
-
-// async function main() {
-//   const {source} = await prompts({
-//     type: 'select',
-//     name: 'source',
-//     message: 'Where do you want to read data from?',
-//     initial: 0,
-//     choices: [
-//       { title: 'A Kinesis Stream', value: 'kinesis', disabled: false},
-//       { title: 'A Kinesis Firehose on S3', value: 'firehose', disabled: false },
-//       { title: 'A locally downloaded Firehose data file', value: 'local_firehose'},
-//     ]
-//   }, {
-//     onCancel: () => {
-//       console.log('Aborting')
-//       process.exit()
-//     }
-//   })
-
-//   const handlerClass = sources[source]
-//   const handler = new handlerClass(
-//     argv.batchSize,
-//     argv.stdout,
-//     argv.limit
-//   )
-
-//   const innerArgv = yargProgram.options(options.toCli(handler.getOptions())).argv
-//   prompts.override(argv)
-//   await handler.ask()
-//   if (!handler.validInput()) {
-//     return process.exit()
-//   }
-//   await handler.start()
-// }
-
-async function main() {
-
-}
-
-main()
+  .version()
+  .help()
+  .parse()
 
 
