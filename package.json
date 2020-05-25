@@ -15,9 +15,12 @@
   "dependencies": {
     "aws-sdk": "^2.675.0",
     "binary-split": "^1.0.5",
+    "csv-parse": "^4.10.1",
     "from2-array": "0.0.4",
     "glob": "^7.1.6",
+    "jexl": "^2.2.2",
     "kinesis-readable": "^1.2.0",
+    "lodash": "^4.17.15",
     "prompts": "^2.3.2",
     "through2": "^3.0.1",
     "yargs": "^15.3.1"

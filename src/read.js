@@ -1,12 +1,12 @@
 const prompts = require('prompts')
 const through2 = require('through2')
+const jexl = require('jexl')
+const {applyFilter} = require('./filter')
 
 // TODO:
-// - tons of different concerns here;
+// - several different concerns here;
 //   - input reading?
 //   - stream reading?
-//   - filtering?
-//
 
 function defaultOnCancel() {
   console.log('Aborted prompt')
@@ -19,6 +19,10 @@ async function askWithDefaults(argv, questions, onCancel) {
     onCancel = defaultOnCancel
   }
 
+  if (argv.filter) {
+    argv.want_filter = true
+  }
+
   prompts.override(argv)
   let post_questions = [
     {
@@ -29,16 +33,7 @@ async function askWithDefaults(argv, questions, onCancel) {
     {
       type: prev => prev ? 'text' : null,
       name: 'filter',
-      message: 'Enter a JSON filter. Events will be discarded unless they contain the properties and values in the filter',
-      validate: value => {
-        try {
-          JSON.parse(value)
-          return true
-        } catch (e) {
-          return "Filter must be valid json"
-        }
-      },
-      format: value => JSON.parse(value)
+      message: 'Enter a filter'
     },
     {
       type: 'confirm',
@@ -56,11 +51,6 @@ async function askWithDefaults(argv, questions, onCancel) {
   return Object.assign(argv, input)
 }
 
-function matchFilter (event, filter) {
-  if (!filter) return true
-  return Object.keys(filter).reduce((acc, f) => acc && event[f] == filter[f], true)
-}
-
 
 async function readStream(input, streamWrapper) {
   const stream = await streamWrapper.createStream()
@@ -70,10 +60,11 @@ async function readStream(input, streamWrapper) {
   const ostream = stream.pipe(through2.obj(async (ev, enc, next) => {
     count++
 
-    if (matchFilter(ev, input.filter)) {
+    let filtered = applyFilter(ev, input.filter)
+    if (filtered) {
       matchedCount++
       // todo, write to stdout
-      console.log(ev)
+      console.log(filtered)
     }
 
     if (input.limit && count === input.limit) {
@@ -89,7 +80,8 @@ async function readStream(input, streamWrapper) {
   .on('close', () => {
     streamWrapper.closeStream()
   })
-  .on('end', () => {
+
+  stream.on('end', () => {
     console.error('Reached end of stream. Displayed', matchedCount, 'matching records of', count, 'total records')
   })
 
@@ -129,6 +121,5 @@ module.exports = {
   askWithDefaults,
   readStream,
   handleBatching,
-  matchFilter,
 }
 

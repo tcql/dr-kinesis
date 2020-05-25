@@ -3,6 +3,9 @@
 const prompts = require('prompts')
 const options = require('./src/options')
 const yargs = require('yargs')
+const {initializeJexl} = require('./src/filter')
+
+initializeJexl(["array", "object", "string"])
 
 const description = "Dr. Kinesis helps you read from AWS Kinesis Streams "
   + "and Firehose Delivery Streams"
