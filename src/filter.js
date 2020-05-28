@@ -1,6 +1,7 @@
 const parse = require('csv-parse/lib/sync')
 const jexl = require('jexl')
 const _zip = require('lodash/zip')
+const _zipObject = require('lodash/zipObject')
 
 function importLodashCategories(categories) {
   for (let cat of categories) {
@@ -39,10 +40,15 @@ function initializeJexl(lodash_categories) {
   })
 
   // TODO: more formats?
-  jexl.addTransform('csv', (val, unwrap=true) => {
-    let csv = parse(val)
-    if (!unwrap) return unpack(csv)
-    return unpack(csv[0])
+  jexl.addTransform('csv', (val, headers=[], unwrap=true) => {
+    let csv = parse(val).filter(l => l)
+
+    if (headers && headers.length > 0) {
+      csv = csv.map(l => _zipObject(headers, l))
+    }
+
+    if (!unwrap) return csv
+    return csv[0]
   })
   jexl.addTransform('split', (val, char) => val.split(char))
   jexl.addTransform('unpack', unpack)
@@ -55,12 +61,18 @@ function applyFilter(event, filter) {
   if (!filter) return event
 
   event = unpack(event)
-  return jexl.evalSync(filter, event)
+  return filter.evalSync(event)
+}
+
+function parseFilter(filter) {
+  if (!filter) return false
+  return jexl.compile(filter)
 }
 
 
 module.exports = {
   unpack,
+  parseFilter,
   applyFilter,
   importLodashCategories,
   initializeJexl,

@@ -1,7 +1,7 @@
 const prompts = require('prompts')
 const through2 = require('through2')
 const jexl = require('jexl')
-const {applyFilter} = require('./filter')
+const {applyFilter, parseFilter} = require('./filter')
 
 // TODO:
 // - several different concerns here;
@@ -54,13 +54,14 @@ async function askWithDefaults(argv, questions, onCancel) {
 
 async function readStream(input, streamWrapper) {
   const stream = await streamWrapper.createStream()
+  const filter = parseFilter(input.filter)
   let count = 0,
     matchedCount = 0
 
   const ostream = stream.pipe(through2.obj(async (ev, enc, next) => {
     count++
 
-    let filtered = applyFilter(ev, input.filter)
+    let filtered = applyFilter(ev, filter)
     if (filtered) {
       matchedCount++
       // todo, write to stdout
