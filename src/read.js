@@ -1,5 +1,6 @@
 const prompts = require('prompts')
 const through2 = require('through2')
+const _ = require('lodash')
 
 // TODO:
 // - tons of different concerns here;
@@ -58,7 +59,7 @@ async function askWithDefaults(argv, questions, onCancel) {
 
 function matchFilter (event, filter) {
   if (!filter) return true
-  return Object.keys(filter).reduce((acc, f) => acc && event[f] == filter[f], true)
+  return _.isMatch(event, filter)
 }
 
 
@@ -73,7 +74,11 @@ async function readStream(input, streamWrapper) {
     if (matchFilter(ev, input.filter)) {
       matchedCount++
       // todo, write to stdout
-      console.log(ev)
+      if (input.stdout) {
+        console.log(JSON.stringify(ev))
+      } else {
+        console.log(ev)
+      }
     }
 
     if (input.limit && count === input.limit) {
@@ -88,6 +93,7 @@ async function readStream(input, streamWrapper) {
   }))
   .on('close', () => {
     streamWrapper.closeStream()
+    process.exit()
   })
   .on('end', () => {
     console.error('Reached end of stream. Displayed', matchedCount, 'matching records of', count, 'total records')
@@ -101,7 +107,9 @@ async function handleBatching(input, stream, count, matchedCount) {
   if (!input.batchSize || input.toStdout) return true
 
   if (count % input.batchSize === 0) {
-    console.log('Found', matchedCount, 'matching records out of', count, 'records so far')
+    console.error('Found', matchedCount, 'matching records out of', count, 'records so far')
+
+    if (input.stdout) return true
 
     stream.pause()
 

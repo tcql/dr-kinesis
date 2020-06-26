@@ -8,22 +8,7 @@ const description = "Dr. Kinesis helps you read from AWS Kinesis Streams "
   + "and Firehose Delivery Streams"
 
 yargs
-  .options({
-    limit: {
-      type: 'number',
-      default: 0,
-      alias: 'l',
-    },
-    batchSize: {
-      type: 'number',
-      default: 100,
-      alias: 'b',
-    },
-    stdout: {
-      type: 'boolean',
-      default: false,
-    },
-  })
+  .options(options.toCli(options.programOptions))
   .command('*', description, () => {}, async argv => {
     const {source} = await prompts({
       type: 'select',
