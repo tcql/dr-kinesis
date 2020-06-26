@@ -20,10 +20,17 @@ async function askWithDefaults(argv, questions, onCancel) {
     onCancel = defaultOnCancel
   }
 
+  // if we're using stdout, allow skipping
+  if (argv.stdout) {
+    argv.ready = true
+    argv.want_filter = argv.want_filter || false
+  }
+
   prompts.override(argv)
   let post_questions = [
     {
-      type: 'confirm',
+      // if filter set on console, skip asking if we want a filter
+      type: prev => argv.filter ? null : 'confirm',
       name: 'want_filter',
       message: 'Do you want to filter the data?'
     },
@@ -53,6 +60,7 @@ async function askWithDefaults(argv, questions, onCancel) {
     questions.concat(post_questions),
     { onCancel: onCancel }
   )
+  if (!input.ready) process.exit()
 
   return Object.assign(argv, input)
 }
