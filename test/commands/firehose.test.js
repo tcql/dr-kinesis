@@ -12,6 +12,9 @@ test('configures cli options', () => {
     },
     location: {
       type: 'string'
+    },
+    reverse: {
+      type: 'boolean'
     }
   })
 })
