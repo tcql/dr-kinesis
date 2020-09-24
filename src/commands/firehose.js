@@ -23,6 +23,11 @@ const options = {
       type: 'text',
       message: 'Where on S3 is the Firehose?'
     }
+  },
+  reverse: {
+    cli: {
+      type: 'boolean',
+    }
   }
 }
 

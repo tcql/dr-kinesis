@@ -32,6 +32,10 @@ class Firehose extends BaseStream {
     const response = await s3Client.listObjectsV2({Bucket: bucket, Prefix: prefix}).promise()
     const s3Files = response.Contents.map(r => ({Bucket: bucket, Key: r.Key}))
 
+    if (this.input.reverse) {
+      s3Files.reverse()
+    }
+
     this.stream = fromArray.obj(s3Files)
       .pipe(through2.obj(downloadFile(s3Client)))
       .pipe(zlib.createGunzip())
