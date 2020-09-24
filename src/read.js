@@ -14,7 +14,6 @@ function defaultOnCancel() {
   process.exit()
 }
 
-//todo use defaultOnCancel
 async function askWithDefaults(argv, questions, onCancel) {
   if (!onCancel && onCancel !== false) {
     onCancel = defaultOnCancel
@@ -112,7 +111,7 @@ async function readStream(input, streamWrapper) {
 
 
 async function handleBatching(input, stream, count, matchedCount) {
-  if (!input.batchSize || input.toStdout) return true
+  if (!input.batchSize) return true
 
   if (count % input.batchSize === 0) {
     console.error('Found', matchedCount, 'matching records out of', count, 'records so far')

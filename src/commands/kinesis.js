@@ -64,8 +64,6 @@ exports.describe = "Read records from a Kinesis Stream"
 exports.builder = toCli(options)
 
 exports.handler = async (argv) => {
-  prompts.override(argv)
   let input = await askWithDefaults(argv, toInteractive(options))
-
   await readStream(input, new KinesisStream(input))
 }
