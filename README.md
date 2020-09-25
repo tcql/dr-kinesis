@@ -15,7 +15,19 @@ Decode & Filter records from:
 
 ![](https://github.com/tcql/dr-kinesis/blob/master/assets/example.svg)
 
-## usage
+
+
+## installation
+
+### from npm
+
+```
+npm install -g dr-kinesis
+```
+
+
+
+### from source
 
 ```sh
 git clone https://github.com/tcql/dr-kinesis.git
@@ -31,6 +43,45 @@ npm link
 dr-kinesis
 ```
 
+
+
+## usage
+
+Dr. Kinesis features an interactive mode that will prompt you through the process of reading from a stream or firehose. Just run `dr-kinesis` to get started!
+
+All interactive features of Dr. Kinesis can also be supplied via CLI options, allowing you to skip prompts. For example, you could do the following to select reading from an S3 firehose and skip the questions about S3 location and region:
+
+```sh
+dr-kinesis firehose --location s3://my/firehose/path -r us-east-1
+```
+
+See `dr-kinesis --help` for more information.
+
+
+
+### commands
+
+Currently Dr.Kinesis supports 3 commands:
+
+- `dr-kinesis kinesis` - read from a Kinesis Data Stream
+- `dr-kinesis firehose` - read from  a Firehose Delivery Stream on S3
+- `dr-kinesis localfirehose` - read data from a local file
+
+Each command has its own CLI options and prompts. Try `dr-kinesis <command> --help` to see available options
+
+
+
+### global options
+
+Certain options are not available in interactive mode and can only be set via flags when you invoke Dr. Kinesis
+
+- `-b, --batchSize` controls how many records to scan in each batch
+- `-l, --limit` controls the max number of records to scan before aborting
+- `--stdout` modifies the doctor's behavior & output to facilitate using dr-kinesis to pipe data out to other programs:
+  - `--limit` is required in stdout mode
+  - initial "Ready?" prompt is suppressed
+  - batch continuation prompts are suppressed
+  - output records JSON.stringify-ed, resulting in line-delimited JSON; perfect for passing in to `jq`
 
 ### filtering
 

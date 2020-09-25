@@ -16,7 +16,6 @@ class KinesisStream extends BaseStream {
       region: this.input.region,
       params: { StreamName: this.input.stream }
     })
-    console.log(this.input)
     const params = { limit: this.input.batchSize }
 
     if (this.input.iterator_type === "AT_TIMESTAMP") {

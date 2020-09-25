@@ -43,16 +43,11 @@ const options = {
   timestamp: {
     cli: {
       type: 'string',
+      coerce: d => new Date(d)
     },
     interactive: {
       type: prev => prev === "AT_TIMESTAMP" ? "date" : null,
       message: 'What timestamp do you want to start from?',
-      format: date => {
-        if (!(date instanceof Date)) {
-          return Date.parse(date)
-        }
-        return date
-      },
       validate: date => {
         if (!(date instanceof Date)) {
           date = Date.parse(date)
@@ -69,7 +64,6 @@ exports.describe = "Read records from a Kinesis Stream"
 exports.builder = toCli(options)
 
 exports.handler = async (argv) => {
-  prompts.override(argv)
   let input = await askWithDefaults(argv, toInteractive(options))
   await readStream(input, new KinesisStream(input))
 }

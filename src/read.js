@@ -13,20 +13,22 @@ function defaultOnCancel() {
   process.exit()
 }
 
-//todo use defaultOnCancel
 async function askWithDefaults(argv, questions, onCancel) {
   if (!onCancel && onCancel !== false) {
     onCancel = defaultOnCancel
   }
 
-  if (argv.filter) {
-    argv.want_filter = true
+  // if we're using stdout, allow skipping
+  if (argv.stdout) {
+    argv.ready = true
+    argv.want_filter = argv.want_filter || false
   }
 
   prompts.override(argv)
   let post_questions = [
     {
-      type: 'confirm',
+      // if filter set on console, skip asking if we want a filter
+      type: prev => argv.filter ? null : 'confirm',
       name: 'want_filter',
       message: 'Do you want to filter the data?'
     },
@@ -47,10 +49,10 @@ async function askWithDefaults(argv, questions, onCancel) {
     questions.concat(post_questions),
     { onCancel: onCancel }
   )
+  if (!input.ready) process.exit()
 
   return Object.assign(argv, input)
 }
-
 
 async function readStream(input, streamWrapper) {
   const stream = await streamWrapper.createStream()
@@ -64,8 +66,11 @@ async function readStream(input, streamWrapper) {
     let filtered = applyFilter(ev, filter)
     if (filtered) {
       matchedCount++
-      // todo, write to stdout
-      console.log(filtered)
+      if (input.stdout) {
+        console.log(JSON.stringify(ev))
+      } else {
+        console.log(ev)
+      }
     }
 
     if (input.limit && count === input.limit) {
@@ -80,6 +85,7 @@ async function readStream(input, streamWrapper) {
   }))
   .on('close', () => {
     streamWrapper.closeStream()
+    process.exit()
   })
 
   stream.on('end', () => {
@@ -91,10 +97,12 @@ async function readStream(input, streamWrapper) {
 
 
 async function handleBatching(input, stream, count, matchedCount) {
-  if (!input.batchSize || input.toStdout) return true
+  if (!input.batchSize) return true
 
   if (count % input.batchSize === 0) {
-    console.log('Found', matchedCount, 'matching records out of', count, 'records so far')
+    console.error('Found', matchedCount, 'matching records out of', count, 'records so far')
+
+    if (input.stdout) return true
 
     stream.pause()
 

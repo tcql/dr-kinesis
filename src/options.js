@@ -19,6 +19,7 @@ module.exports.programOptions = {
     cli: {
       type: 'boolean',
       default: false,
+      implies: ['l']
     }
   },
 }
