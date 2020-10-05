@@ -36,6 +36,11 @@ class Firehose extends BaseStream {
       s3Files.reverse()
     }
 
+    if (s3Files.length === 0) {
+      console.log(`No files found at ${this.input.location}`)
+      process.exit()
+    }
+
     this.stream = fromArray.obj(s3Files)
       .pipe(through2.obj(downloadFile(s3Client)))
       .pipe(zlib.createGunzip())
