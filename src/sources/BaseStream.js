@@ -23,13 +23,16 @@ class BaseStream {
     // instance, not the BaseSource instance
     return through2.obj(function (line, encoding, next) {
       let data = line
+      let parsed = JSON.parse(line)
       try {
-        data = JSON.parse(line).data
+        data = parsed.data
         if (!data) data = line
       } catch {}
 
       try {
         data = zlib.gunzipSync(Buffer.from(data, 'base64'))
+
+       // console.log(data)
       } catch {}
 
       next(null, data)
@@ -44,8 +47,8 @@ class BaseStream {
         events = JSON.parse(line)
       } catch {}
 
-      if (Array.isArray(events)) {
-        events.forEach(e => this.push(e))
+      if (Array.isArray(events.events)) {
+        events.events.forEach(e => this.push(e))
       } else {
         this.push(events)
       }

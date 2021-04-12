@@ -66,6 +66,10 @@ async function readStream(input, streamWrapper) {
     let filtered = applyFilter(ev, filter)
     if (filtered) {
       matchedCount++
+      let fStr = filtered.toString()
+      if (fStr != 'true' && fStr != 'false') {
+        ev = filtered
+      }
       if (input.stdout) {
         console.log(JSON.stringify(ev))
       } else {

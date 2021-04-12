@@ -1,6 +1,8 @@
 const parse = require('csv-parse/lib/sync')
 const jexl = require('jexl')
 const _zipObject = require('lodash/zipObject')
+const _isArray = require('lodash/isArray')
+const _pick = require('lodash/pick')
 
 function unpack(context) {
   if (Array.isArray(context)) {
@@ -16,13 +18,17 @@ function unpack(context) {
 
 function initializeJexl() {
   // TODO: more formats?
+  jexl.addTransform('elem', (val, ...idxs) => {
+    const selected = _pick(val, idxs)
+    return _isArray(val)
+      ? Object.values(selected)
+      : selected
+  })
   jexl.addTransform('csv', (val, headers=[], unwrap=true) => {
     let csv = parse(val).filter(l => l)
-
     if (headers && headers.length > 0) {
       csv = csv.map(l => _zipObject(headers, l))
     }
-
     if (!unwrap) return csv
     return csv[0]
   })
