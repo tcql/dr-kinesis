@@ -13,7 +13,8 @@ Decode & Filter records from:
 - Kinesis Firehose
 - Locally copied Firehose data files
 
-![](https://github.com/tcql/dr-kinesis/blob/master/assets/example.svg)
+
+![](https://github.com/tcql/dr-kinesis/raw/main/assets/example.svg)
 
 
 
